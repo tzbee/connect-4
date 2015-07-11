@@ -3,57 +3,14 @@ body {
 }
 
 .container {
-	width: 50%;
-    padding-bottom: 42.8%;
-    margin-left: auto;
-    margin-right: auto;
-    background-color: #0051bd;
-    overflow: hidden;
-    position: relative;
-}
-
-.content {
-	position: absolute;
-	width: 100%;
-	height: 100%;
+	width: 700px;
 	margin: auto;
-}
-
-[class*=row-] {
-	position: relative;
-	width: 100%;
-	margin: auto;
-    padding-bottom: 14.3%;
-}
-
-[class*=col-] {
-	position: relative;
-	float: left;
-	width: 14.2%;
-	height: 100%;
-	padding:0px;
-}
-
-.token[data-color=yellow] {
-	color: #AAAA22;
-}
-
-.token[data-color=red] {
-	color: #AA2222;
-}
-
-.content .tile .token.fa.fa-dot-circle-o {
-	display: block;
-	font-size: 6.3vw;
-	position: absolute;
-	left: 0.7vmax;
-	top: 0.4vmax;
 }
 
 .yellow {
-	color: #AAAA22;
+	color: #DDDD22;
 }
 
 .red {
-	color: #AA2222;
+	color: #DD2222;
 }

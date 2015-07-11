@@ -35,6 +35,7 @@ var Board = Backbone.Model.extend({
 		var row = this.findHighestEmptyTile(col);
 		if (row === -1) throw new Error('Cannot play at this position');
 		this.get('board')[row][col] = value;
+		return [row, col];
 	},
 	findHighestEmptyTile: function(col) {
 		var board = this.get('board'),
@@ -267,6 +268,7 @@ function GameModel(dispatcher) {
 
 			this.listenTo(dispatcher, 'game:start', this.start);
 			this.listenTo(dispatcher, 'game:restart', this.restart);
+			this.listenTo(dispatcher, 'view:updated', this.onPlayed);
 
 			var players = this.get('players');
 
@@ -304,14 +306,21 @@ function GameModel(dispatcher) {
 			var index = currentPlayer.get('index');
 
 			var board = this.get('board');
+			var move;
 
 			try {
-				board.play(col, index);
+				move = board.play(col, index);
 			} catch (err) {
 				return;
 			}
 
-			dispatcher.trigger('played', board);
+			dispatcher.trigger('played', board, move[0], col, index);
+
+		},
+		onPlayed: function() {
+			var currentPlayer = this.get('players')[this.get('turn')];
+			var board = this.get('board');
+			var index = currentPlayer.get('index');
 
 			if (board.checkWin(index)) {
 				dispatcher.trigger('win', index);

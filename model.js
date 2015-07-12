@@ -272,11 +272,12 @@ function GameModel(dispatcher) {
 
 			var players = this.get('players');
 
-			players[0] = new HumanPlayer({
+			players[0] = new ExpertAIPlayer({
+				BoardController: Board,
 				index: 0
 			});
 
-			players[1] = new ExpertAIPlayer({
+			players[1] = new HumanPlayer({
 				BoardController: Board,
 				index: 1
 			});

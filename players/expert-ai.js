@@ -26,20 +26,22 @@ var AICache = function() {
 
 var ExpertAIPlayer = Backbone.Model.extend({
 	type: 'ai',
-	cache: new AICache(),
+	depth: 8,
 	initialize: function()  {
 		var BoardController = this.get('BoardController');
 		this.set({
 			boardController: new BoardController(),
-			opponentIndex: this.get('index') === 0 ? 1 : 0
+			opponentIndex: this.get('index') === 0 ? 1 : 0,
+			cache: new AICache()
 		});
+
 	},
 	getNextMove: function(boardController, cb) {
 		var boardCopy = boardController.get('board').clone();
-		this.cache.clear();
+		this.get('cache').clear();
 
 		setTimeout(function() {
-			this.minimax(boardCopy, true, 6, -9000, 9000);
+			this.minimax(boardCopy, true, this.depth, -9000, 9000);
 			var choice = this.get('choice');
 			cb(choice);
 		}.bind(this), 100);
@@ -49,7 +51,7 @@ var ExpertAIPlayer = Backbone.Model.extend({
 		var opponentIndex = this.get('opponentIndex');
 		var currentToken = maximize ? aiToken : opponentIndex;
 		var boardController = this.get('boardController');
-		var cache = this.cache;
+		var cache = this.get('cache');
 
 		boardController.set({
 			board: board
@@ -61,6 +63,8 @@ var ExpertAIPlayer = Backbone.Model.extend({
 
 		var legalMoves = boardController.getLegalMoves(),
 			legalMove, boardCopy, choice;
+
+		this.sortMoves(legalMoves);
 
 		var v, i, j, childNodeValue, hash;
 
@@ -145,6 +149,20 @@ var ExpertAIPlayer = Backbone.Model.extend({
 			return v;
 		}
 	},
+	sortMoves: function(moves) {
+		moves.sort(function(a, b) {
+			if (a === 3) return -1;
+			if (b === 3) return 1;
+
+			if (a === 4 || a === 2) return -1;
+			if (b === 4 || b === 2) return 1;
+
+			if (a === 5 || a === 1) return -1;
+			if (b === 5 || b === 1) return 1;
+
+			else return -1;
+		});
+	},
 	evaluate: function(board, depth, currentToken) {
 		var aiToken = this.get('index'),
 			opponentIndex = this.get('opponentIndex'),
@@ -157,4 +175,8 @@ var ExpertAIPlayer = Backbone.Model.extend({
 		else if (opponentHasWon) return (-1000 + depthModifier * 10 + (chainModifier * 3));
 		else return (chainModifier * 3) + depthModifier;
 	}
+});
+
+var OtherAIPlayer = ExpertAIPlayer.extend({
+	depth: 6
 });

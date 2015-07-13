@@ -291,8 +291,10 @@ function GameModel(dispatcher) {
 				dispatcher.trigger('game:enable');
 			} else if (currentPlayer.type === 'ai') {
 				dispatcher.trigger('game:disable');
+				dispatcher.trigger('loading:start');
 
 				currentPlayer.getNextMove(this.get('board'), function(nextMove) {
+					dispatcher.trigger('loading:stop');
 					this.play(nextMove);
 				}.bind(this));
 			}

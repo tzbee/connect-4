@@ -183,28 +183,44 @@ function GameView(dispatcher) {
 	});
 
 	var ResultView = Backbone.View.extend({
+		restartButtonClass: 'restart',
+		resultBoxClass: 'result',
+		loadingBoxClass: 'loading',
 		tokens: tokens,
-		$restartButton: $('<button>', {
-			class: 'restart',
-			html: 'Restart'
-		}),
 		initialize: function() {
+
+			var $restartButton = $('<button>', {
+				class: this.restartButtonClass,
+				html: 'Restart'
+			});
+
+			var $resultBox = $('<span>', {
+				class: this.resultBoxClass,
+				css: {
+					visibility: 'hidden'
+				}
+			});
+
+			var $loadingBox = $('<span>', {
+				class: this.loadingBoxClass,
+				html: 'Loading..',
+				css: {
+					visibility: 'hidden'
+				}
+			});
+
+			this.$el.html($restartButton.add($resultBox).add($loadingBox));
+
 			this.listenTo(dispatcher, 'win', this.update);
-			this.$el.html(this.$restartButton);
+			this.listenTo(dispatcher, 'loading:start', this.startLoading);
+			this.listenTo(dispatcher, 'loading:stop', this.stopLoading);
 		},
 		update: function(winnerIndex) {
-			var $restartButton = this.$restartButton;
-
-			if (winnerIndex === -1) {
-				this.$el.html($restartButton);
-			} else {
-				var winner = this.tokens[winnerIndex];
-				var $winner = $('<span>', {
-					class: 'result ' + winner,
-					html: 'Winner is ' + winner
-				});
-
-				this.$el.html($winner).append($restartButton);
+			var winner = this.tokens[winnerIndex];
+			var $resultBox = $('.' + this.resultBoxClass);
+			if (winner) {
+				$resultBox.addClass(winner).html('Winner is ' + winner);
+				this.show($resultBox);
 			}
 		},
 		events: {
@@ -212,7 +228,19 @@ function GameView(dispatcher) {
 		},
 		restartGame: function() {
 			dispatcher.trigger('game:restart');
-			this.update(-1);
+			this.hide($('.' + this.resultBoxClass));
+		},
+		startLoading: function() {
+			this.show($('.' + this.loadingBoxClass));
+		},
+		stopLoading: function() {
+			this.hide($('.' + this.loadingBoxClass));
+		},
+		hide: function(element) {
+			element.css('visibility', 'hidden');
+		},
+		show: function(element) {
+			element.css('visibility', 'visible');
 		}
 	});
 
@@ -221,6 +249,6 @@ function GameView(dispatcher) {
 	});
 
 	this.resultView = new ResultView({
-		el: $('.result')
+		el: $('.sideBox')
 	});
 }

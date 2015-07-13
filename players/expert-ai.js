@@ -62,7 +62,7 @@ var ExpertAIPlayer = Backbone.Model.extend({
 		}
 
 		var legalMoves = boardController.getLegalMoves(),
-			legalMove, boardCopy, choice;
+			legalMove, legalMovesCopy, boardCopy, choice;
 
 		this.sortMoves(legalMoves);
 
@@ -70,6 +70,42 @@ var ExpertAIPlayer = Backbone.Model.extend({
 
 		if (maximize) {
 			v = -9000;
+
+			legalMovesCopy = legalMoves.slice();
+
+			for (i = 0; i < legalMovesCopy.length; i++) {
+				legalMove = legalMovesCopy[i];
+
+				boardCopy = board.clone();
+
+				boardController.set({
+					board: boardCopy
+				});
+
+				boardController.play(legalMove, currentToken);
+
+				hash = boardController.hash();
+				childNodeValue = cache.get(hash);
+
+				if (childNodeValue !== null) {
+					if (childNodeValue > v) {
+						v = childNodeValue;
+						choice = legalMove;
+					}
+
+					alpha = Math.max(alpha, v);
+
+					if (beta <= alpha) {
+						this.set({
+							choice: choice
+						});
+
+						return v;
+					}
+
+					legalMoves.splice(legalMoves.indexOf(legalMove), 1);
+				}
+			}
 
 			for (i = 0; i < legalMoves.length; i++) {
 				legalMove = legalMoves[i];
@@ -110,6 +146,42 @@ var ExpertAIPlayer = Backbone.Model.extend({
 
 		} else {
 			v = 9000;
+
+			legalMovesCopy = legalMoves.slice();
+
+			for (i = 0; i < legalMovesCopy.length; i++) {
+				legalMove = legalMovesCopy[i];
+
+				boardCopy = board.clone();
+
+				boardController.set({
+					board: boardCopy
+				});
+
+				boardController.play(legalMove, currentToken);
+
+				hash = boardController.hash();
+				childNodeValue = cache.get(hash);
+
+				if (childNodeValue !== null) {
+					if (childNodeValue < v) {
+						v = childNodeValue;
+						choice = legalMove;
+					}
+
+					beta = Math.min(beta, v);
+
+					if (beta <= alpha) {
+						this.set({
+							choice: choice
+						});
+
+						return v;
+					}
+
+					legalMoves.splice(legalMoves.indexOf(legalMove), 1);
+				}
+			}
 
 			for (j = 0; j < legalMoves.length; j++) {
 				legalMove = legalMoves[j];
@@ -175,8 +247,4 @@ var ExpertAIPlayer = Backbone.Model.extend({
 		else if (opponentHasWon) return (-1000 + depthModifier * 10 + (chainModifier * 3));
 		else return (chainModifier * 3) + depthModifier;
 	}
-});
-
-var OtherAIPlayer = ExpertAIPlayer.extend({
-	depth: 6
 });

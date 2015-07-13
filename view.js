@@ -184,7 +184,6 @@ function GameView(dispatcher) {
 
 	var ResultView = Backbone.View.extend({
 		tokens: tokens,
-		 
 		$restartButton: $('<button>', {
 			class: 'restart',
 			html: 'Restart'

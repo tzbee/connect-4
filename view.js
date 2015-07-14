@@ -8,8 +8,7 @@ function GameView(dispatcher) {
 		initialize: function() {
 			this.ctx = this.el.getContext('2d');
 			this.bgColor = $('body').css('backgroundColor');
-			this.width = this.el.width;
-			this.height = this.el.height;
+
 
 			window.requestAnimationFrame = window.requestAnimationFrame ||
 				window.webkitRequestAnimationFrame ||
@@ -37,16 +36,15 @@ function GameView(dispatcher) {
 		initBoard: function(board) {
 			var self = this;
 
+			this.width = this.el.width;
+			this.height = this.el.height;
+
 			this.tileWidth = this.width / board.get('nbCols');
 			this.tileHeight = this.height / board.get('nbRows');
 
 			this.pieceRadius = this.tileWidth * 0.3;
 
 			// Cache some drawings
-
-			this.tileCanvas = this.renderOffScreen(this.tileWidth, this.tileHeight, function(ctx) {
-				self.drawTile(ctx, self.tileWidth, self.pieceRadius, '#222266');
-			});
 
 			this.redPieceCanvas = this.renderOffScreen(this.pieceRadius * 2, this.pieceRadius * 2, function(ctx) {
 				self.drawPiece(ctx, self.pieceRadius, '#DD2222');
@@ -57,7 +55,7 @@ function GameView(dispatcher) {
 			});
 
 			this.maskCache = this.renderOffScreen(this.width, this.height, function(ctx) {
-				self.renderMask(ctx, board);
+				self.renderMask(ctx, board, self.pieceRadius, '#222266');
 			});
 
 			this.render();
@@ -83,34 +81,34 @@ function GameView(dispatcher) {
 			ctx.clearRect(0, 0, this.width, this.height);
 			ctx.drawImage(this.maskCache, 0, 0);
 		},
-		renderMask: function(ctx, board) {
-			var nbCols = board.get('nbCols');
-			var nbRows = board.get('nbRows');
-			var tileSize = this.tileWidth;
-			var tileImage = this.tileCanvas;
-			var row, col;
+		renderMask: function(ctx, board, pieceRadius, color) {
+			var nbCols = board.get('nbCols'),
+				nbRows = board.get('nbRows'),
+				tileSize = this.tileWidth,
+				maskWidth = this.width,
+				maskHeight = this.height,
+				row, col,
+				pos = (tileSize - (pieceRadius * 2)) / 2 + pieceRadius;
 
-			for (row = 0; row < nbRows; row++) {
-				for (col = 0; col < nbCols; col++) {
-					ctx.drawImage(tileImage, col * tileSize, row * tileSize);
-				}
-			}
-		},
-		events: {
-			'click': 'onTileClick'
-		},
-		drawTile: function(ctx, size, pieceRadius, color) {
 			ctx.save();
-
-			var pos = (size - (pieceRadius * 2)) / 2 + pieceRadius;
 
 			ctx.fillStyle = color;
 			ctx.beginPath();
-			ctx.arc(pos, pos, pieceRadius, 0, 2 * Math.PI);
-			ctx.rect(size, 0, -size, size);
+
+			for (row = 0; row < nbRows; row++) {
+				for (col = 0; col < nbCols; col++) {
+					ctx.moveTo(col * tileSize + pos, row * tileSize + pos);
+					ctx.arc(col * tileSize + pos, row * tileSize + pos, pieceRadius, 0, 2 * Math.PI);
+				}
+			}
+
+			ctx.rect(maskWidth, 0, -maskWidth, maskHeight);
 			ctx.fill();
 
 			ctx.restore();
+		},
+		events: {
+			'click': 'onTileClick'
 		},
 		drawPiece: function(ctx, radius, color) {
 			ctx.save();

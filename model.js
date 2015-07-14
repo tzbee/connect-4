@@ -269,6 +269,9 @@ function GameModel(dispatcher) {
 			this.listenTo(dispatcher, 'game:start', this.start);
 			this.listenTo(dispatcher, 'game:restart', this.restart);
 			this.listenTo(dispatcher, 'view:updated', this.onPlayed);
+			this.listenTo(dispatcher, 'view:resized', function() {
+				dispatcher.trigger('game:update', this.get('board'));
+			}.bind(this));
 
 			var players = this.get('players');
 

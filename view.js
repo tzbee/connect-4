@@ -9,7 +9,6 @@ function GameView(dispatcher) {
 			this.ctx = this.el.getContext('2d');
 			this.bgColor = $('body').css('backgroundColor');
 
-
 			window.requestAnimationFrame = window.requestAnimationFrame ||
 				window.webkitRequestAnimationFrame ||
 				window.mozRequestAnimationFrame ||
@@ -18,7 +17,7 @@ function GameView(dispatcher) {
 				};
 
 			this.listenTo(dispatcher, 'played', function(board, row, col, value) {
-				this.update(board, row, col, value, function() {
+				this.update(row, col, value, function() {
 					dispatcher.trigger('view:updated');
 				});
 			}.bind(this));
@@ -32,12 +31,25 @@ function GameView(dispatcher) {
 			this.listenTo(dispatcher, 'game:disable', function() {
 				this.enabled = false;
 			}.bind(this));
+
+			window.onresize = function() {
+				dispatcher.trigger('view:resized');
+			};
+
+			this.listenTo(dispatcher, 'game:update', function(board) {
+				this.initBoard(board);
+			}.bind(this));
 		},
 		initBoard: function(board) {
 			var self = this;
 
-			this.width = this.el.width;
-			this.height = this.el.height;
+			var $parent = this.$el.parent();
+
+			this.width = $parent.width();
+			this.height = this.width * 6 / 7;
+
+			this.$el.attr('width', this.width);
+			this.$el.attr('height', this.height);
 
 			this.tileWidth = this.width / board.get('nbCols');
 			this.tileHeight = this.height / board.get('nbRows');
@@ -58,7 +70,7 @@ function GameView(dispatcher) {
 				self.renderMask(ctx, board, self.pieceRadius, '#222266');
 			});
 
-			this.render();
+			this.render(board);
 
 			this.previousViewState = this.renderOffScreen(this.width, this.height, function(ctx) {
 				ctx.drawImage(self.el, 0, 0);
@@ -74,11 +86,29 @@ function GameView(dispatcher) {
 			if (renderer) renderer(offScreenCanvas.getContext('2d'));
 			return offScreenCanvas;
 		},
-		render: function() {
+		render: function(board) {
 			var ctx = this.ctx;
+			var pieceRadius = this.pieceRadius;
+			var tileSize = this.tileWidth;
+			var row, col;
+			var nbRows = board.get('nbRows');
+			var nbCols = board.get('nbCols');
 
-			// Clear canvas
-			ctx.clearRect(0, 0, this.width, this.height);
+			ctx.fillStyle = this.bgColor;
+			ctx.fillRect(0, 0, this.width, this.height);
+
+			for (row = 0; row < nbRows; row++) {
+				for (col = 0; col < nbCols; col++) {
+					var piece = board.getTile(row, col);
+					if (piece !== -1) {
+						var token = this.tokens[piece];
+						var pos = (tileSize - (pieceRadius * 2)) / 2;
+
+						ctx.drawImage(token === 'red' ? this.redPieceCanvas : token === 'yellow' ? this.yellowPieceCanvas : null, col * tileSize + pos, row * tileSize + pos);
+					}
+				}
+			}
+
 			ctx.drawImage(this.maskCache, 0, 0);
 		},
 		renderMask: function(ctx, board, pieceRadius, color) {
@@ -136,7 +166,7 @@ function GameView(dispatcher) {
 
 			return [x, y];
 		},
-		startAnimation: function(ctx, board, row, col, value, done) {
+		startAnimation: function(ctx, row, col, value, done) {
 			var tileSize = this.tileWidth;
 			var pieceRadius = this.pieceRadius;
 			var posOffset = (tileSize - (pieceRadius * 2)) / 2;
@@ -175,8 +205,8 @@ function GameView(dispatcher) {
 		drawCanvas: function(canvas, targetCanvas) {
 			targetCanvas.getContext('2d').drawImage(canvas, 0, 0);
 		},
-		update: function(board, row, col, value, done) {
-			this.startAnimation(this.ctx, board, row, col, value, done);
+		update: function(row, col, value, done) {
+			this.startAnimation(this.ctx, row, col, value, done);
 		}
 	});
 

@@ -15,3 +15,9 @@ body {
 .red {
 	color: #DD2222;
 }
+
+@media all and (orientation: portrait) { 
+	.container {
+		width: 100%;
+	}
+}

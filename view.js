@@ -272,11 +272,17 @@ function GameView(dispatcher) {
 		}
 	});
 
+	var ChoiceView = Backbone.View.extend({
+		initialize: function() {
+
+		}
+	});
+
 	this.boardView = new BoardView({
 		el: $('#gameCanvas')
 	});
 
-	this.resultView = new ResultView({
+	this.choiceView = new ResultView({
 		el: $('.sideBox')
 	});
 }

@@ -16,6 +16,12 @@ body {
 	color: #DD2222;
 }
 
+
+.sideBox {
+	width: 25%;
+	margin: auto;
+}
+
 @media all and (orientation: portrait) { 
 	.container {
 		width: 100%;

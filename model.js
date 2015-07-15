@@ -336,15 +336,17 @@ function GameModel(dispatcher) {
 				this.currentPlayerPlays();
 			}
 		},
-		restart: function() {
+		restart: function(firstPlayer) {
 			this.get('board').clear();
-			this.set({
-				turn: 0
-			});
-			dispatcher.trigger('game:start');
+			dispatcher.trigger('game:start', firstPlayer);
 		},
-		start: function() {
+		start: function(firstPlayer) {
 			dispatcher.trigger('game:init', this.get('board'));
+
+			if (firstPlayer === 0 || firstPlayer === 1) this.set({
+				turn: firstPlayer
+			});
+
 			this.currentPlayerPlays();
 		}
 	});

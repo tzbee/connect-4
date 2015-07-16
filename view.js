@@ -22,7 +22,7 @@ function GameView(dispatcher) {
 				};
 
 			this.listenTo(dispatcher, 'played', function(board, row, col, value) {
-				this.update(row, col, value, function() {
+				this.update(board, row, col, value, function() {
 					dispatcher.trigger('view:updated');
 				});
 			}.bind(this));
@@ -76,10 +76,6 @@ function GameView(dispatcher) {
 			});
 
 			this.render(board);
-
-			this.previousViewState = this.renderOffScreen(this.width, this.height, function(ctx) {
-				ctx.drawImage(self.el, 0, 0);
-			});
 
 			// Temporary canvas cache
 			this.canvasCache = this.renderOffScreen(this.width, this.height);
@@ -171,7 +167,10 @@ function GameView(dispatcher) {
 
 			return [x, y];
 		},
-		startAnimation: function(ctx, row, col, value, done) {
+		getPieceBuffer: function(value) {
+			return value === 0 ? this.redPieceCanvas : value === 1 ? this.yellowPieceCanvas : null;
+		},
+		startAnimation: function(ctx, board, row, col, value, done) {
 			var tileSize = this.tileWidth;
 			var pieceRadius = this.pieceRadius;
 			var posOffset = (tileSize - (pieceRadius * 2)) / 2;
@@ -182,6 +181,21 @@ function GameView(dispatcher) {
 			var self = this;
 			var requestAnimationFrame = window.requestAnimationFrame;
 			var tmpCtx;
+			var nbRows = board.get('nbRows');
+			var nbCols = board.get('nbCols');
+
+			var tokenCanvas = this.renderOffScreen(this.width, this.height, function(ctx) {
+				for (var r = 0; r < nbRows; r++) {
+					for (var c = 0; c < nbCols; c++) {
+						if (row === r && col === c) continue;
+
+						var piece = board.getTile(r, c);
+						if (piece !== -1) {
+							ctx.drawImage(self.getPieceBuffer(piece), tileSize * c + posOffset, tileSize * r + posOffset);
+						}
+					}
+				}
+			});
 
 			(function animate(currentY) {
 
@@ -191,7 +205,7 @@ function GameView(dispatcher) {
 
 				tmpCtx.fillStyle = self.bgColor;
 				tmpCtx.fillRect(0, 0, self.width, self.height);
-				tmpCtx.drawImage(self.previousViewState, 0, 0);
+				tmpCtx.drawImage(tokenCanvas, 0, 0);
 				tmpCtx.drawImage(image, x, currentY);
 				tmpCtx.drawImage(self.maskCache, 0, 0);
 
@@ -202,7 +216,6 @@ function GameView(dispatcher) {
 						animate(currentY + 35);
 					});
 				} else {
-					self.drawCanvas(self.el, self.previousViewState);
 					done();
 				}
 			})(startingY);
@@ -210,8 +223,8 @@ function GameView(dispatcher) {
 		drawCanvas: function(canvas, targetCanvas) {
 			targetCanvas.getContext('2d').drawImage(canvas, 0, 0);
 		},
-		update: function(row, col, value, done) {
-			this.startAnimation(this.ctx, row, col, value, done);
+		update: function(board, row, col, value, done) {
+			this.startAnimation(this.ctx, board, row, col, value, done);
 		}
 	});
 

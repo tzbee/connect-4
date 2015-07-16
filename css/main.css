@@ -16,10 +16,18 @@ body {
 	color: #DD2222;
 }
 
-
-.sideBox {
-	width: 25%;
+.sideBox, .choiceBox {
 	margin: auto;
+}
+
+.choiceBox {
+	width: 27%;
+	font-size: 5vmax;
+}
+
+.choiceItem:hover {
+	color: #222222 !important; 
+	cursor: pointer;
 }
 
 @media all and (orientation: portrait) { 

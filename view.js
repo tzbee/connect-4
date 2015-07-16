@@ -1,6 +1,11 @@
 function GameView(dispatcher) {
 
 	var tokens = ['red', 'yellow'];
+	var colors = {
+		red: '#DD2222',
+		yellow: '#DDDD22',
+		maskBlue: '#222266'
+	};
 
 	var BoardView = Backbone.View.extend({
 		enabled: false,
@@ -59,15 +64,15 @@ function GameView(dispatcher) {
 			// Cache some drawings
 
 			this.redPieceCanvas = this.renderOffScreen(this.pieceRadius * 2, this.pieceRadius * 2, function(ctx) {
-				self.drawPiece(ctx, self.pieceRadius, '#DD2222');
+				self.drawPiece(ctx, self.pieceRadius, colors.red);
 			});
 
 			this.yellowPieceCanvas = this.renderOffScreen(this.pieceRadius * 2, this.pieceRadius * 2, function(ctx) {
-				self.drawPiece(ctx, self.pieceRadius, '#DDDD22');
+				self.drawPiece(ctx, self.pieceRadius, colors.yellow);
 			});
 
 			this.maskCache = this.renderOffScreen(this.width, this.height, function(ctx) {
-				self.renderMask(ctx, board, self.pieceRadius, '#222266');
+				self.renderMask(ctx, board, self.pieceRadius, colors.maskBlue);
 			});
 
 			this.render(board);
@@ -211,17 +216,10 @@ function GameView(dispatcher) {
 	});
 
 	var ResultView = Backbone.View.extend({
-		restartButtonClass: 'restart',
 		resultBoxClass: 'result',
 		loadingBoxClass: 'loading',
 		tokens: tokens,
 		initialize: function() {
-
-			var $restartButton = $('<button>', {
-				class: this.restartButtonClass,
-				html: 'Restart'
-			});
-
 			var $resultBox = $('<span>', {
 				class: this.resultBoxClass,
 				css: {
@@ -237,7 +235,7 @@ function GameView(dispatcher) {
 				}
 			});
 
-			this.$el.html($restartButton.add($resultBox).add($loadingBox));
+			this.$el.html($resultBox.add($loadingBox));
 
 			this.listenTo(dispatcher, 'win', this.update);
 			this.listenTo(dispatcher, 'loading:start', this.startLoading);
@@ -250,13 +248,6 @@ function GameView(dispatcher) {
 				$resultBox.addClass(winner).html('Winner is ' + winner);
 				this.show($resultBox);
 			}
-		},
-		events: {
-			'click .restart': 'restartGame'
-		},
-		restartGame: function() {
-			dispatcher.trigger('game:restart');
-			this.hide($('.' + this.resultBoxClass));
 		},
 		startLoading: function() {
 			this.show($('.' + this.loadingBoxClass));
@@ -274,7 +265,18 @@ function GameView(dispatcher) {
 
 	var ChoiceView = Backbone.View.extend({
 		initialize: function() {
-
+			$('.choiceItem.humanFirst').css('color', colors.red);
+			$('.choiceItem.computerFirst').css('color', colors.yellow);
+		},
+		events: {
+			'click .humanFirst': 'humanStart',
+			'click .computerFirst': 'computerStart'
+		},
+		humanStart: function() {
+			dispatcher.trigger('game:restart', 0);
+		},
+		computerStart: function() {
+			dispatcher.trigger('game:restart', 1);
 		}
 	});
 
@@ -282,7 +284,11 @@ function GameView(dispatcher) {
 		el: $('#gameCanvas')
 	});
 
-	this.choiceView = new ResultView({
+	this.resultView = new ResultView({
 		el: $('.sideBox')
+	});
+
+	this.choiceView = new ChoiceView({
+		el: $('.choiceBox')
 	});
 }

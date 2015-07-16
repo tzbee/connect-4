@@ -59,7 +59,8 @@ function GameView(dispatcher) {
 			this.tileWidth = this.width / board.get('nbCols');
 			this.tileHeight = this.height / board.get('nbRows');
 
-			this.pieceRadius = this.tileWidth * 0.3;
+			this.holeRadius = this.tileWidth * 0.3;
+			this.pieceRadius = this.holeRadius + 1;
 
 			// Cache some drawings
 
@@ -72,7 +73,7 @@ function GameView(dispatcher) {
 			});
 
 			this.maskCache = this.renderOffScreen(this.width, this.height, function(ctx) {
-				self.renderMask(ctx, board, self.pieceRadius, colors.maskBlue);
+				self.renderMask(ctx, board, self.holeRadius, colors.maskBlue);
 			});
 
 			this.render(board);
@@ -112,14 +113,14 @@ function GameView(dispatcher) {
 
 			ctx.drawImage(this.maskCache, 0, 0);
 		},
-		renderMask: function(ctx, board, pieceRadius, color) {
+		renderMask: function(ctx, board, holeRadius, color) {
 			var nbCols = board.get('nbCols'),
 				nbRows = board.get('nbRows'),
 				tileSize = this.tileWidth,
 				maskWidth = this.width,
 				maskHeight = this.height,
 				row, col,
-				pos = (tileSize - (pieceRadius * 2)) / 2 + pieceRadius;
+				pos = (tileSize - (holeRadius * 2)) / 2 + holeRadius;
 
 			ctx.save();
 
@@ -129,7 +130,7 @@ function GameView(dispatcher) {
 			for (row = 0; row < nbRows; row++) {
 				for (col = 0; col < nbCols; col++) {
 					ctx.moveTo(col * tileSize + pos, row * tileSize + pos);
-					ctx.arc(col * tileSize + pos, row * tileSize + pos, pieceRadius, 0, 2 * Math.PI);
+					ctx.arc(col * tileSize + pos, row * tileSize + pos, holeRadius, 0, 2 * Math.PI);
 				}
 			}
 
@@ -264,7 +265,7 @@ function GameView(dispatcher) {
 			}
 		},
 		onRestart: function() {
-			$('.'+this.resultBoxClass).empty();
+			$('.' + this.resultBoxClass).empty();
 		},
 		startLoading: function() {
 			this.show($('.' + this.loadingBoxClass));

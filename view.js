@@ -253,6 +253,7 @@ function GameView(dispatcher) {
 			this.listenTo(dispatcher, 'win', this.update);
 			this.listenTo(dispatcher, 'loading:start', this.startLoading);
 			this.listenTo(dispatcher, 'loading:stop', this.stopLoading);
+			this.listenTo(dispatcher, 'game:restart', this.onRestart);
 		},
 		update: function(winnerIndex) {
 			var winner = this.tokens[winnerIndex];
@@ -261,6 +262,9 @@ function GameView(dispatcher) {
 				$resultBox.addClass(winner).html('Winner is ' + winner);
 				this.show($resultBox);
 			}
+		},
+		onRestart: function() {
+			$('.'+this.resultBoxClass).empty();
 		},
 		startLoading: function() {
 			this.show($('.' + this.loadingBoxClass));

@@ -1,11 +1,20 @@
 body {
 	background-color: #EEEEEE;
+	font-family: arial,sans-serif;
+	font-weight: bold;
 }
 
 .container {
 	width: 40%;
 	margin: auto;
 	padding: 0px;
+	text-align: center;
+}
+
+.result {
+	display: inline-block;
+	font-size: 3rem;
+	font-weight: bold;
 }
 
 .yellow {

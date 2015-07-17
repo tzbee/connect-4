@@ -47,11 +47,13 @@ var ExpertAIPlayer = Backbone.Model.extend({
 		}.bind(this), 100);
 	},
 	minimax: function(board, maximize, depth, alpha, beta) {
-		var aiToken = this.get('index');
-		var opponentIndex = this.get('opponentIndex');
-		var currentToken = maximize ? aiToken : opponentIndex;
-		var boardController = this.get('boardController');
-		var cache = this.get('cache');
+		var aiToken = this.get('index'),
+			opponentIndex = this.get('opponentIndex'),
+			currentToken = maximize ? aiToken : opponentIndex,
+			boardController = this.get('boardController'),
+			cache = this.get('cache'),
+			legalMoves, legalMove, legalMovesCopy, boardCopy, choice,
+			v, i, childNodeValue, hash;
 
 		boardController.set({
 			board: board
@@ -61,17 +63,14 @@ var ExpertAIPlayer = Backbone.Model.extend({
 			return this.evaluate(boardController, depth, currentToken);
 		}
 
-		var legalMoves = boardController.getLegalMoves(),
-			legalMove, legalMovesCopy, boardCopy, choice;
+		legalMoves = boardController.getLegalMoves();
 
 		this.sortMoves(legalMoves);
 
-		var v, i, j, childNodeValue, hash;
+		legalMovesCopy = legalMoves.slice();
 
 		if (maximize) {
 			v = -9000;
-
-			legalMovesCopy = legalMoves.slice();
 
 			for (i = 0; i < legalMovesCopy.length; i++) {
 				legalMove = legalMovesCopy[i];
@@ -147,8 +146,6 @@ var ExpertAIPlayer = Backbone.Model.extend({
 		} else {
 			v = 9000;
 
-			legalMovesCopy = legalMoves.slice();
-
 			for (i = 0; i < legalMovesCopy.length; i++) {
 				legalMove = legalMovesCopy[i];
 
@@ -183,8 +180,8 @@ var ExpertAIPlayer = Backbone.Model.extend({
 				}
 			}
 
-			for (j = 0; j < legalMoves.length; j++) {
-				legalMove = legalMoves[j];
+			for (i = 0; i < legalMoves.length; i++) {
+				legalMove = legalMoves[i];
 
 				boardCopy = board.clone();
 

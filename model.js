@@ -265,13 +265,13 @@ function GameModel(dispatcher) {
 			board: new Board()
 		},
 		initialize: function() {
-
 			this.listenTo(dispatcher, 'game:start', this.start);
 			this.listenTo(dispatcher, 'game:restart', this.restart);
 			this.listenTo(dispatcher, 'view:updated', this.onPlayed);
 			this.listenTo(dispatcher, 'view:resized', function() {
 				dispatcher.trigger('game:update', this.get('board'));
 			}.bind(this));
+			this.listenTo(dispatcher, 'tile:click', this.play);
 
 			var players = this.get('players');
 
@@ -284,8 +284,6 @@ function GameModel(dispatcher) {
 				BoardController: Board,
 				index: 1
 			});
-
-			this.listenTo(dispatcher, 'tile:click', this.play);
 		},
 		currentPlayerPlays: function() {
 			var currentPlayer = this.get('players')[this.get('turn')];
@@ -321,7 +319,6 @@ function GameModel(dispatcher) {
 			}
 
 			dispatcher.trigger('played', board, move[0], col, index);
-
 		},
 		onPlayed: function() {
 			var currentPlayer = this.get('players')[this.get('turn')];
@@ -343,8 +340,8 @@ function GameModel(dispatcher) {
 		start: function(firstPlayer) {
 			dispatcher.trigger('game:init', this.get('board'));
 
-			if (firstPlayer === 0 || firstPlayer === 1) this.set({
-				turn: firstPlayer
+			this.set({
+				turn: firstPlayer === 0 || firstPlayer === 1 ? firstPlayer : 0
 			});
 
 			this.currentPlayerPlays();

@@ -172,33 +172,32 @@ var BoardView = Backbone.View.extend({
 		return value === 0 ? this.redPieceCanvas : value === 1 ? this.yellowPieceCanvas : null;
 	},
 	startAnimation: function(ctx, board, row, col, value, done) {
-		var tileSize = this.tileWidth;
-		var pieceRadius = this.pieceRadius;
-		var posOffset = (tileSize - (pieceRadius * 2)) / 2;
-		var x = col * tileSize + posOffset;
-		var destinationY = row * tileSize + posOffset;
-		var startingY = -2 * pieceRadius;
-		var image = value === 0 ? this.redPieceCanvas : this.yellowPieceCanvas;
-		var self = this;
-		var requestAnimationFrame = window.requestAnimationFrame;
-		var tmpCtx;
-		var nbRows = board.get('nbRows');
-		var nbCols = board.get('nbCols');
-		var lastTime;
-		var speed = this.width / 150;
+		var tileSize = this.tileWidth,
+			pieceRadius = this.pieceRadius,
+			posOffset = (tileSize - (pieceRadius * 2)) / 2,
+			x = col * tileSize + posOffset,
+			destinationY = row * tileSize + posOffset,
+			startingY = -2 * pieceRadius,
+			image = value === 0 ? this.redPieceCanvas : this.yellowPieceCanvas,
+			self = this,
+			requestAnimationFrame = window.requestAnimationFrame,
+			tmpCtx,
+			nbRows = board.get('nbRows'),
+			nbCols = board.get('nbCols'),
+			lastTime,
+			speed = this.width / 150,
+			tokenCanvas = this.renderOffScreen(this.width, this.height, function(ctx) {
+				for (var r = 0; r < nbRows; r++) {
+					for (var c = 0; c < nbCols; c++) {
+						if (row === r && col === c) continue;
 
-		var tokenCanvas = this.renderOffScreen(this.width, this.height, function(ctx) {
-			for (var r = 0; r < nbRows; r++) {
-				for (var c = 0; c < nbCols; c++) {
-					if (row === r && col === c) continue;
-
-					var piece = board.getTile(r, c);
-					if (piece !== -1) {
-						ctx.drawImage(self.getPieceBuffer(piece), tileSize * c + posOffset, tileSize * r + posOffset);
+						var piece = board.getTile(r, c);
+						if (piece !== -1) {
+							ctx.drawImage(self.getPieceBuffer(piece), tileSize * c + posOffset, tileSize * r + posOffset);
+						}
 					}
 				}
-			}
-		});
+			});
 
 		lastTime = Date.now();
 		(function animate(currentY, dt) {

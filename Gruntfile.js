@@ -7,7 +7,7 @@ module.exports = function(grunt) {
         separator: ';',
       },
       dist: {
-        src: ['players/player.js', 'players/expert-ai.js', 'players/human-player.js', 'model/board.js', 'model/game.js', 'view/view-config.js', 'view/board-view.js', 'view/choice-view', 'view/result-view', 'index.js', 'router.js'],
+        src: ['players/player.js', 'players/expert-ai.js', 'players/human-player.js', 'model/board.js', 'model/game.js', 'view/view-config.js', 'view/board-view.js', 'view/choice-view.js', 'view/result-view.js', 'index.js', 'router.js'],
         dest: 'build/build.js',
       },
     },

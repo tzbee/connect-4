@@ -24,17 +24,25 @@ var AICache = function() {
 	};
 };
 
-var ExpertAIPlayer = Backbone.Model.extend({
+var ExpertAIPlayer = Player.extend({
 	type: 'ai',
 	depth: 8,
 	initialize: function()  {
-		var BoardController = this.get('BoardController');
-		this.set({
-			boardController: new BoardController(),
-			opponentIndex: this.get('index') === 0 ? 1 : 0,
-			cache: new AICache()
-		});
+		Player.prototype.initialize.call(this);
 
+		this.set({
+			opponentIndex: this.get('index') === 0 ? 1 : 0,
+			cache: new AICache(),
+			boardController: new Board()
+		});
+	},
+	onTurn: function(game) {
+		dispatcher.trigger('loading:start');
+		var gameId = game.get('id');
+		this.getNextMove(game.get('board'), function(nextMove) {
+			dispatcher.trigger('loading:stop');
+			dispatcher.trigger('play', nextMove, this, gameId);
+		}.bind(this));
 	},
 	getNextMove: function(boardController, cb) {
 		var boardCopy = boardController.get('board').clone();

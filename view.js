@@ -13,9 +13,10 @@ var BoardView = Backbone.View.extend({
 		this.ctx = this.el.getContext('2d');
 		this.bgColor = $('body').css('backgroundColor');
 
-		window.requestAnimationFrame = window.requestAnimationFrame ||
-			window.webkitRequestAnimationFrame ||
+		window.requestAnimationFrame = window.webkitRequestAnimationFrame ||
 			window.mozRequestAnimationFrame ||
+			window.oRequestAnimationFrame ||
+			window.msRequestAnimationFrame ||
 			function(callback) {
 				window.setTimeout(callback, 1000 / 60);
 			};

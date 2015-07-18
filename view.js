@@ -183,6 +183,8 @@ var BoardView = Backbone.View.extend({
 		var tmpCtx;
 		var nbRows = board.get('nbRows');
 		var nbCols = board.get('nbCols');
+		var lastTime;
+		var speed = this.width / 150;
 
 		var tokenCanvas = this.renderOffScreen(this.width, this.height, function(ctx) {
 			for (var r = 0; r < nbRows; r++) {
@@ -197,8 +199,8 @@ var BoardView = Backbone.View.extend({
 			}
 		});
 
-		(function animate(currentY) {
-
+		lastTime = Date.now();
+		(function animate(currentY, dt) {
 			if (currentY > destinationY) currentY = destinationY;
 
 			tmpCtx = self.canvasCache.getContext('2d');
@@ -213,12 +215,13 @@ var BoardView = Backbone.View.extend({
 
 			if (currentY < destinationY) {
 				requestAnimationFrame(function() {
-					animate(currentY + 35);
+					animate(currentY + speed * dt, Date.now() - lastTime);
+					lastTime = Date.now();
 				});
 			} else {
 				done();
 			}
-		})(startingY);
+		})(startingY, 0);
 	},
 	drawCanvas: function(canvas, targetCanvas) {
 		targetCanvas.getContext('2d').drawImage(canvas, 0, 0);

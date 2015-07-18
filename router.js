@@ -8,7 +8,7 @@ var GameRouter = Backbone.Router.extend({
 var gameRouter = new GameRouter();
 
 gameRouter.on('route:start', function(index) {
-	dispatcher.trigger('game:start', parseInt(index));
+	dispatcher.trigger('game:restart', parseInt(index));
 });
 
 Backbone.history.start();
